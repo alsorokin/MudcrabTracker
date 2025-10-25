@@ -22,6 +22,7 @@ local function onAddOnLoaded(_, addonName)
     db = ZO_SavedVars:NewAccountWide("db", ADDON_VERSION, nil, defaults)
 
     UpdateLabel()
+    MudcrabTrackerLabel:SetHidden(true)
 end
 
 local function onCombatEvent(_eventCode_, result, _isError_, _abilityName_, _abilityGraphic_, _abilityActionSlotType_, _sourceName_,
@@ -47,4 +48,14 @@ EVENT_MANAGER:AddFilterForEvent(ADDON_NAME .. "_combat_companion", EVENT_COMBAT_
 
 SLASH_COMMANDS["/crabs"] = function()
     Print("Mudcrabs exterminated: " .. db.counter)
+end
+
+SLASH_COMMANDS["/togglecrabs"] = function()
+    if MudcrabTrackerLabel:IsHidden() then
+        MudcrabTrackerLabel:SetHidden(false)
+        Print("Mudcrab Tracker is now visible.")
+    else
+        MudcrabTrackerLabel:SetHidden(true)
+        Print("Mudcrab Tracker is now hidden.")
+    end
 end
