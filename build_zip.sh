@@ -3,7 +3,10 @@ set -euo pipefail
 
 FOLDER="MudcrabTracker"
 
-version="$(grep -E '^## Version:' MudcrabTracker.txt | sed -E 's/^## Version:[[:space:]]*//')"
+version="$(grep -E '^## Version:' MudcrabTracker.txt \
+    | sed -E 's/^## Version:[[:space:]]*//' \
+    | tr -d '\r')"
+
 if [[ -z "$version" ]]; then
   echo "Version not found in MudcrabTracker.txt"
   exit 1
