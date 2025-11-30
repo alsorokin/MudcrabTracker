@@ -1,6 +1,33 @@
 local CRABS_ADDON_NAME = "MudcrabTracker"
 local CRABS_DB_VERSION = "0.0.1"
 local crabs_db
+local clientLang = GetCVar("language.2")
+
+local crabNames = {
+    --English
+    ["en"] = {
+        ["Mudcrab"] = true,
+        ["Coral Crab"] = true,
+        ["Hermit Crab"] = true,
+    },
+    --German
+    ["de"] = {
+        ["Schlammkrabbe"] = true,
+        ["Korallenkrabbe"] = true,
+        ["Einsiedlerkrabbe"] = true,
+    },
+    --Russian
+    ["ru"] = {
+        ["Грязевой краб"] = true,
+        ["Коралловый краб"] = true,
+        ["Краб-отшельник"] = true,
+    },
+}
+local crabsOfClientLang = crabNames[clientLang]
+if crabsOfClientLang == nil then
+    return
+end
+
 
 local function Print(msg)
 	CHAT_SYSTEM:AddMessage(msg)
@@ -49,25 +76,29 @@ local function onCombatEvent(
 			return
 		end
 
-		local trimmedTargetName = targetName:gsub("%^n$", "")
-
-		if
-			-- EN
-			(string.find(trimmedTargetName, "Mudcrab", 1, true) ~= nil)
-			or (string.find(trimmedTargetName, "Coral Crab", 1, true) ~= nil)
-			or (string.find(trimmedTargetName, "Hermit Crab", 1, true) ~= nil)
-			-- RU
-			or (string.find(trimmedTargetName, "Грязевой краб", 1, true) ~= nil)
-			or (string.find(trimmedTargetName, "Коралловый краб", 1, true) ~= nil)
-			or (string.find(trimmedTargetName, "Краб-отшельник", 1, true) ~= nil)
-		then
-			crabs_db.counter = crabs_db.counter + 1
-			Print("You killed a mudcrab! Total crabs killed: " .. crabs_db.counter)
-			UpdateLabel()
-			--else
-			--	Print(trimmedTargetName)
-		end
+		-- local trimmedTargetName = targetName:gsub("%^n$", "")
+		local trimmedTargetName = ZO_CachedStrFormat("<<C:1>>", targetName)
 		UpdateKillstat(trimmedTargetName)
+
+		local mudCrabDetected = crabsOfClientLang[trimmedTargetName]
+		-- Wasn't found directly via the trimmedTargetName so check partial string find -> Sloooooooooooow....
+		-- comment out for now, seems to be working fine with direct name match only
+    	-- if not mudCrabDetected then
+        --	for possibleMudcrabNamePart, _ in pairs(crabsOfClientLang) do
+	    --        if not mudCrabDetected then --security skip of loop if break below does not work
+        --        	mudCrabDetected = (str_find(trimmedTargetName, possibleMudcrabNamePart, 1, true) ~= nil and true) or false
+        --        	if mudCrabDetected then
+	    --                break --end the for loop
+        --        	end
+        --    	end
+        --	end
+    	-- end
+		if not mudCrabDetected then return end
+
+		--MudCrab was found
+    	crabs_db.counter = crabs_db.counter + 1
+    	Print("You killed " .. trimmedTargetName .. "! Total crabs killed: " .. crabs_db.counter)
+    	UpdateLabel()
 	end
 end
 
