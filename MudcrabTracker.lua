@@ -3,6 +3,34 @@ local CRABS_DB_VERSION = "0.0.1"
 local crabs_db
 local clientLang = GetCVar("language.2")
 
+local localizedStrings = {
+	["en"] = {
+		MUDCRAB_TRACKER_LABEL = "Mudcrabs killed: ",
+		CHAT_MESSAGE_MUDCRAB_KILLED_1 = "You killed ",
+		CHAT_MESSAGE_MUDCRAB_KILLED_2 = "! Total crabs killed: ",
+		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Mudcrab Tracker is now visible.",
+		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Mudcrab Tracker is now hidden.",
+		CHAT_MESSAGE_CRABSTAT = "Mudcrabs exterminated: ",
+	},
+	["de"] = {
+		MUDCRAB_TRACKER_LABEL = "Getötete Schlammkrabben: ",
+		CHAT_MESSAGE_MUDCRAB_KILLED_1 = "Du hast ",
+		CHAT_MESSAGE_MUDCRAB_KILLED_2 = " getötet! Insgesamt getötete Krabben: ",
+		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Mudcrab Tracker ist jetzt sichtbar.",
+		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Mudcrab Tracker ist jetzt versteckt.",
+		CHAT_MESSAGE_CRABSTAT = "Schlammkrabben ausgerottet: ",
+	},
+	["ru"] = {
+		MUDCRAB_TRACKER_LABEL = "Убитые грязекрабы: ",
+		CHAT_MESSAGE_MUDCRAB_KILLED_1 = "",
+		CHAT_MESSAGE_MUDCRAB_KILLED_2 = " убит! Крабов уничтожено: ",
+		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Трекер грязекрабов теперь виден.",
+		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Трекер грязекрабов теперь скрыт.",
+		CHAT_MESSAGE_CRABSTAT = "Грязекрабов уничтожено: ",
+	},
+}
+local L = localizedStrings[clientLang] or localizedStrings["en"]
+
 local crabNames = {
     --English
     ["en"] = {
@@ -38,7 +66,7 @@ local function UpdateLabel()
 		return
 	end
 	if not MudcrabTrackerLabel:IsHidden() then
-		MudcrabTrackerLabel:SetText("Mudcrabs killed: " .. crabs_db.counter)
+		MudcrabTrackerLabel:SetText(L.MUDCRAB_TRACKER_LABEL .. crabs_db.counter)
 	end
 end
 
@@ -97,7 +125,7 @@ local function onCombatEvent(
 
 		--MudCrab was found
     	crabs_db.counter = crabs_db.counter + 1
-    	Print("You killed " .. trimmedTargetName .. "! Total crabs killed: " .. crabs_db.counter)
+    	Print(L.CHAT_MESSAGE_MUDCRAB_KILLED_1 .. trimmedTargetName .. L.CHAT_MESSAGE_MUDCRAB_KILLED_2 .. crabs_db.counter)
     	UpdateLabel()
 	end
 end
@@ -135,10 +163,10 @@ local function onAddOnLoaded(_, addonName)
 		if MudcrabTrackerLabel:IsHidden() then
 			MudcrabTrackerLabel:SetHidden(false)
 			UpdateLabel()
-			Print("Mudcrab Tracker is now visible.")
+			Print(L.CHAT_MESSAGE_TRACKER_TOGGLE_ON)
 		else
 			MudcrabTrackerLabel:SetHidden(true)
-			Print("Mudcrab Tracker is now hidden.")
+			Print(L.CHAT_MESSAGE_TRACKER_TOGGLE_OFF)
 		end
 	end
 end
