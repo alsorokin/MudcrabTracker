@@ -81,21 +81,13 @@ local function onAddOnLoaded(_, addonName)
 		killstat = {},
 	}
 
-	crabs_db = ZO_SavedVars:NewAccountWide("crabs_db", CRABS_DB_VERSION, nil, defaults)
+	crabs_db = ZO_SavedVars:NewAccountWide("MudcrabTracker_db", CRABS_DB_VERSION, nil, defaults)
 
 	UpdateLabel()
 	MudcrabTrackerLabel:SetHidden(true)
 
 	--register for events
-	-- EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_player", EVENT_COMBAT_EVENT, onCombatEvent)
-	-- EVENT_MANAGER:AddFilterForEvent(CRABS_ADDON_NAME .. "_combat_player", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
-	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_player_pet", EVENT_COMBAT_EVENT, onCombatEvent)
-	EVENT_MANAGER:AddFilterForEvent(
-		CRABS_ADDON_NAME .. "_combat_player_pet",
-		EVENT_COMBAT_EVENT,
-		REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
-		COMBAT_UNIT_TYPE_PLAYER_PET
-	)
+	-- skip registering for player and player pet because only registering for companion somehow works even if no companion is unlocked
 	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_companion", EVENT_COMBAT_EVENT, onCombatEvent)
 	EVENT_MANAGER:AddFilterForEvent(
 		CRABS_ADDON_NAME .. "_combat_companion",
