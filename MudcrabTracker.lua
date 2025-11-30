@@ -1,38 +1,27 @@
-local ADDON_NAME = "MudcrabTracker"
-local ADDON_VERSION = "0.0.1"
-local db
+local CRABS_ADDON_NAME = "MudcrabTracker"
+local CRABS_DB_VERSION = "0.0.1"
+local crabs_db
 
 local function Print(msg)
 	CHAT_SYSTEM:AddMessage(msg)
 end
 
 local function UpdateLabel()
-	MudcrabTrackerLabel:SetText("Mudcrabs killed: " .. db.counter)
+	if not MudcrabTrackerLabel then
+		return
+	end
+	if not MudcrabTrackerLabel:IsHidden() then
+		MudcrabTrackerLabel:SetText("Mudcrabs killed: " .. crabs_db.counter)
+	end
 end
 
 local function UpdateKillstat(targetName)
-	if db.killstat[targetName] ~= nil then
-		db.killstat[targetName] = db.killstat[targetName] + 1
+	if crabs_db.killstat[targetName] ~= nil then
+		crabs_db.killstat[targetName] = crabs_db.killstat[targetName] + 1
 	else
-		db.killstat[targetName] = 1
+		crabs_db.killstat[targetName] = 1
 	end
-	-- Print(targetName .. ": " .. db.killstat[targetName])
-end
-
-local function onAddOnLoaded(_, addonName)
-	if addonName ~= ADDON_NAME then
-		return
-	end
-
-	local defaults = {
-		counter = 0,
-		killstat = {},
-	}
-
-	db = ZO_SavedVars:NewAccountWide("db", ADDON_VERSION, nil, defaults)
-
-	UpdateLabel()
-	MudcrabTrackerLabel:SetHidden(true)
+	-- Print(targetName .. ": " .. crabs_db.killstat[targetName])
 end
 
 local function onCombatEvent(
@@ -72,8 +61,8 @@ local function onCombatEvent(
 			or (string.find(trimmedTargetName, "Коралловый краб", 1, true) ~= nil)
 			or (string.find(trimmedTargetName, "Краб-отшельник", 1, true) ~= nil)
 		then
-			db.counter = db.counter + 1
-			Print("You killed a mudcrab! Total crabs killed: " .. db.counter)
+			crabs_db.counter = crabs_db.counter + 1
+			Print("You killed a mudcrab! Total crabs killed: " .. crabs_db.counter)
 			UpdateLabel()
 			--else
 			--	Print(trimmedTargetName)
@@ -82,34 +71,54 @@ local function onCombatEvent(
 	end
 end
 
-EVENT_MANAGER:RegisterForEvent(ADDON_NAME .. "_start", EVENT_ADD_ON_LOADED, onAddOnLoaded)
--- EVENT_MANAGER:RegisterForEvent(ADDON_NAME .. "_combat_player", EVENT_COMBAT_EVENT, onCombatEvent)
--- EVENT_MANAGER:AddFilterForEvent(ADDON_NAME .. "_combat_player", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
-EVENT_MANAGER:RegisterForEvent(ADDON_NAME .. "_combat_player_pet", EVENT_COMBAT_EVENT, onCombatEvent)
-EVENT_MANAGER:AddFilterForEvent(
-	ADDON_NAME .. "_combat_player_pet",
-	EVENT_COMBAT_EVENT,
-	REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
-	COMBAT_UNIT_TYPE_PLAYER_PET
-)
-EVENT_MANAGER:RegisterForEvent(ADDON_NAME .. "_combat_companion", EVENT_COMBAT_EVENT, onCombatEvent)
-EVENT_MANAGER:AddFilterForEvent(
-	ADDON_NAME .. "_combat_companion",
-	EVENT_COMBAT_EVENT,
-	REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
-	COMBAT_UNIT_TYPE_COMPANION
-)
+local function onAddOnLoaded(_, addonName)
+	if addonName ~= CRABS_ADDON_NAME then
+		return
+	end
 
-SLASH_COMMANDS["/crabs"] = function()
-	Print("Mudcrabs exterminated: " .. db.counter)
-end
+	local defaults = {
+		counter = 0,
+		killstat = {},
+	}
 
-SLASH_COMMANDS["/togglecrabs"] = function()
-	if MudcrabTrackerLabel:IsHidden() then
-		MudcrabTrackerLabel:SetHidden(false)
-		Print("Mudcrab Tracker is now visible.")
-	else
-		MudcrabTrackerLabel:SetHidden(true)
-		Print("Mudcrab Tracker is now hidden.")
+	crabs_db = ZO_SavedVars:NewAccountWide("crabs_db", CRABS_DB_VERSION, nil, defaults)
+
+	UpdateLabel()
+	MudcrabTrackerLabel:SetHidden(true)
+
+	--register for events
+	-- EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_player", EVENT_COMBAT_EVENT, onCombatEvent)
+	-- EVENT_MANAGER:AddFilterForEvent(CRABS_ADDON_NAME .. "_combat_player", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
+	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_player_pet", EVENT_COMBAT_EVENT, onCombatEvent)
+	EVENT_MANAGER:AddFilterForEvent(
+		CRABS_ADDON_NAME .. "_combat_player_pet",
+		EVENT_COMBAT_EVENT,
+		REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
+		COMBAT_UNIT_TYPE_PLAYER_PET
+	)
+	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_companion", EVENT_COMBAT_EVENT, onCombatEvent)
+	EVENT_MANAGER:AddFilterForEvent(
+		CRABS_ADDON_NAME .. "_combat_companion",
+		EVENT_COMBAT_EVENT,
+		REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
+		COMBAT_UNIT_TYPE_COMPANION
+	)
+
+	SLASH_COMMANDS["/crabs"] = function()
+		Print("Mudcrabs exterminated: " .. crabs_db.counter)
+	end
+
+	SLASH_COMMANDS["/togglecrabs"] = function()
+		if MudcrabTrackerLabel:IsHidden() then
+			MudcrabTrackerLabel:SetHidden(false)
+			UpdateLabel()
+			Print("Mudcrab Tracker is now visible.")
+		else
+			MudcrabTrackerLabel:SetHidden(true)
+			Print("Mudcrab Tracker is now hidden.")
+		end
 	end
 end
+
+EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_start", EVENT_ADD_ON_LOADED, onAddOnLoaded)
+
