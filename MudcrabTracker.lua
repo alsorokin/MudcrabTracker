@@ -34,12 +34,14 @@ local L = localizedStrings[clientLang] or localizedStrings["en"]
 local crabNames = {
     -- English
     ["en"] = {
-        ["Mudcrab"] = 1,
-        ["Coral Crab"] = 1,
-        ["Hermit Crab"] = 1,
-		["Swarming Mudcrab"] = 1,
-		["Clatterclaw"] = 15,
-		["Grotto Mudcrab Swarmer Minions"] = 1,
+        ["Mudcrab"] = 1, -- the regular one
+        ["Coral Crab"] = 1, -- Summerset and High Isle mudcrab
+        ["Hermit Crab"] = 1, -- High Isle critter
+		["Swarming Mudcrab"] = 1, -- Fungal Grotto trash mob
+		["Clatterclaw"] = 15, -- Fungal Grotto boss
+		["Grotto Mudcrab Swarmer Minions"] = 1, -- Fungal Grotto boss minions
+		["Queen of the Reef"] = 15, -- Summerset boss
+		["Coral Mudcrab"] = 1, -- Summerset boss minions
     },
     -- German
     ["de"] = {
@@ -49,6 +51,8 @@ local crabNames = {
 		["Schwärmende Schlammkrabbe"] = 1,
 		["Klapperschere"] = 15,
 		["Schwärmende Schlammkrabben"] = 1,
+		["Die Königin des Riffs"] = 15,
+		-- ["Korallenkrabbe"] = 1, -- same as above
     },
     -- Russian
     ["ru"] = {
@@ -58,6 +62,8 @@ local crabNames = {
 		["Грязевой краб из стаи"] = 1,
 		["Щелкун"] = 15,
 		["Помощники из стаи грязевого краба грота"] = 1,
+		["Королева Рифа"] = 15,
+		["Коралловый грязевой краб"] = 1,
     },
 }
 local crabsOfClientLang = crabNames[clientLang]
