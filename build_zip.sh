@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 FOLDER="MudcrabTracker"
-rm -rf "$FOLDER"
+
+version="$(grep -E '^## Version:' MudcrabTracker.txt | sed -E 's/^## Version:[[:space:]]*//')"
+if [[ -z "$version" ]]; then
+  echo "Version not found in MudcrabTracker.txt"
+  exit 1
+fi
+
+ZIPNAME="MudcrabTracker_${version}.zip"
+
+rm -rf "$FOLDER" "$ZIPNAME"
 mkdir "$FOLDER"
 
 cp MudcrabTracker.lua "$FOLDER"/
 cp MudcrabTracker.txt "$FOLDER"/
 cp MudcrabTracker.xml "$FOLDER"/
 
-zip -r MudcrabTracker.zip "$FOLDER"
+zip -r "$ZIPNAME" "$FOLDER"
 
 rm -rf "$FOLDER"
 
-echo "Created MudcrabTracker.zip"
-
+echo "Created $ZIPNAME"
