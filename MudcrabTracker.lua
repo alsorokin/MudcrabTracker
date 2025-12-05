@@ -32,45 +32,47 @@ local localizedStrings = {
 local L = localizedStrings[clientLang] or localizedStrings["en"]
 
 local crabNames = {
-    -- English
-    ["en"] = {
-        ["Mudcrab"] = 1, -- the regular one
-        ["Coral Crab"] = 1, -- Summerset and High Isle mudcrab
-        ["Hermit Crab"] = 1, -- High Isle critter
+	-- English
+	["en"] = {
+		["Mudcrab"] = 1, -- the regular one
+		["Coral Crab"] = 1, -- Summerset and High Isle mudcrab
+		["Hermit Crab"] = 1, -- High Isle critter
 		["Swarming Mudcrab"] = 1, -- Fungal Grotto trash mob
 		["Clatterclaw"] = 15, -- Fungal Grotto boss
 		["Grotto Mudcrab Swarmer Minions"] = 1, -- Fungal Grotto boss minions
 		["Queen of the Reef"] = 15, -- Summerset boss
 		["Coral Mudcrab"] = 1, -- Summerset boss minions
-    },
-    -- German
-    ["de"] = {
-        ["Schlammkrabbe"] = 1,
-        ["Korallenkrabbe"] = 1,
-        ["Einsiedlerkrabbe"] = 1,
+		["Mud Crab"] = 1, -- Solstice temple
+	},
+	-- German
+	["de"] = {
+		["Schlammkrabbe"] = 1,
+		["Korallenkrabbe"] = 1,
+		["Einsiedlerkrabbe"] = 1,
 		["Schwärmende Schlammkrabbe"] = 1,
 		["Klapperschere"] = 15,
 		["Schwärmende Schlammkrabben"] = 1,
 		["Die Königin des Riffs"] = 15,
-		-- ["Korallenkrabbe"] = 1, -- same as above
-    },
-    -- Russian
-    ["ru"] = {
-        ["Грязевой краб"] = 1,
-        ["Коралловый краб"] = 1,
-        ["Краб-отшельник"] = 1,
+		-- ["Korallenkrabbe"] = 1,
+		-- ["Schlammkrabbe"] = 1,
+	},
+	-- Russian
+	["ru"] = {
+		["Грязевой краб"] = 1,
+		["Коралловый краб"] = 1,
+		["Краб-отшельник"] = 1,
 		["Грязевой краб из стаи"] = 1,
 		["Щелкун"] = 15,
 		["Помощники из стаи грязевого краба грота"] = 1,
 		["Королева Рифа"] = 15,
 		["Коралловый грязевой краб"] = 1,
-    },
+		["Грязевой краб"] = 1,
+	},
 }
 local crabsOfClientLang = crabNames[clientLang]
 if crabsOfClientLang == nil then
-    return
+	return
 end
-
 
 local function print(msg)
 	CHAT_SYSTEM:AddMessage(msg)
@@ -129,24 +131,31 @@ local function onCombatEvent(
 		end
 		-- Wasn't found directly via the trimmedTargetName so check partial string find -> Sloooooooooooow....
 		-- comment out for now, seems to be working fine with direct name match only
-    	-- if not mudCrabDetected then
-        --	for possibleMudcrabNamePart, _ in pairs(crabsOfClientLang) do
-	    --        if not mudCrabDetected then --security skip of loop if break below does not work
-        --        	mudCrabDetected = (str_find(trimmedTargetName, possibleMudcrabNamePart, 1, true) ~= nil and true) or false
-        --        	if mudCrabDetected then
-	    --                break --end the for loop
-        --        	end
-        --    	end
-        --	end
-    	-- end
+		-- if not mudCrabDetected then
+		--	for possibleMudcrabNamePart, _ in pairs(crabsOfClientLang) do
+		--        if not mudCrabDetected then --security skip of loop if break below does not work
+		--        	mudCrabDetected = (str_find(trimmedTargetName, possibleMudcrabNamePart, 1, true) ~= nil and true) or false
+		--        	if mudCrabDetected then
+		--                break --end the for loop
+		--        	end
+		--    	end
+		--	end
+		-- end
 
-    	crabs_db.counter = crabs_db.counter + score
+		crabs_db.counter = crabs_db.counter + score
 		if score == 1 then
-    		print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, trimmedTargetName, tostring(crabs_db.counter)))
+			print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, trimmedTargetName, tostring(crabs_db.counter)))
 		else
-			print(string.format(L.CHAT_MESSAGE_BOSS_KILLED, trimmedTargetName, tostring(score), tostring(crabs_db.counter)))
+			print(
+				string.format(
+					L.CHAT_MESSAGE_BOSS_KILLED,
+					trimmedTargetName,
+					tostring(score),
+					tostring(crabs_db.counter)
+				)
+			)
 		end
-    	updateLabel()
+		updateLabel()
 	end
 end
 
@@ -192,4 +201,3 @@ local function onAddOnLoaded(_, addonName)
 end
 
 EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_start", EVENT_ADD_ON_LOADED, onAddOnLoaded)
-
