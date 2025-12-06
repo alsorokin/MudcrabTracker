@@ -2,6 +2,8 @@ local CRABS_ADDON_NAME = "MudcrabTracker"
 local CRABS_DB_VERSION = "0.0.1"
 local crabs_db
 local clientLang = GetCVar("language.2")
+local DEFAULT_CRABS_LABEL_LEFT = 10
+local DEFAULT_CRABS_LABEL_TOP = 30
 
 local localizedStrings = {
 	["en"] = {
@@ -82,11 +84,11 @@ local function print(msg)
 end
 
 local function updateLabel()
-	if not MudcrabTrackerLabel or MudcrabTrackerLabel:IsHidden() then
+	if not MudcrabTrackerIndicator or MudcrabTrackerIndicator:IsHidden() then
 		return
 	end
 
-	MudcrabTrackerLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, crabs_db.counter))
+	MudcrabTrackerIndicatorLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, crabs_db.counter))
 end
 
 local function updateKillstat(targetName)
@@ -139,6 +141,20 @@ local function onCombatEvent(
 	updateLabel()
 end
 
+local function restoreIndicatorPosition()
+	if crabs_db.counterPosition == nil then
+		crabs_db.counterPosition = {
+			left = DEFAULT_CRABS_LABEL_LEFT,
+			top = DEFAULT_CRABS_LABEL_TOP,
+		}
+	end
+	local left = crabs_db.counterPosition.left
+	local top = crabs_db.counterPosition.top
+
+	MudcrabTrackerIndicator:ClearAnchors()
+	MudcrabTrackerIndicator:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, left, top)
+end
+
 local function onAddOnLoaded(_, addonName)
 	if addonName ~= CRABS_ADDON_NAME then
 		return
@@ -148,15 +164,20 @@ local function onAddOnLoaded(_, addonName)
 		counter = 0,
 		killstat = {},
 		counterEnabled = false,
+		counterPosition = {
+			left = DEFAULT_CRABS_LABEL_LEFT,
+			top = DEFAULT_CRABS_LABEL_TOP,
+		},
 	}
 
 	crabs_db = ZO_SavedVars:NewAccountWide("MudcrabTracker_db", CRABS_DB_VERSION, nil, defaults)
 
 	updateLabel()
+	restoreIndicatorPosition()
 	if crabs_db.counterEnabled then
-		MudcrabTrackerLabel:SetHidden(false)
+		MudcrabTrackerIndicator:SetHidden(false)
 	else
-		MudcrabTrackerLabel:SetHidden(true)
+		MudcrabTrackerIncicator:SetHidden(true)
 	end
 
 	--register for events
@@ -187,16 +208,21 @@ local function onAddOnLoaded(_, addonName)
 
 	SLASH_COMMANDS["/togglecrabs"] = function()
 		if crabs_db.counterEnabled then
-			MudcrabTrackerLabel:SetHidden(true)
+			MudcrabTrackerIndicator:SetHidden(true)
 			crabs_db.counterEnabled = false
 			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_OFF)
 		else
-			MudcrabTrackerLabel:SetHidden(false)
+			MudcrabTrackerIndicator:SetHidden(false)
 			crabs_db.counterEnabled = true
 			updateLabel()
 			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_ON)
 		end
 	end
+end
+
+function MudcrabTracker_OnCounterMoveStop()
+	crabs_db.counterPosition.left = MudcrabTrackerIndicator:GetLeft()
+	crabs_db.counterPosition.top = MudcrabTrackerIndicator:GetTop()
 end
 
 EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_start", EVENT_ADD_ON_LOADED, onAddOnLoaded)
