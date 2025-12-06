@@ -82,12 +82,11 @@ local function print(msg)
 end
 
 local function updateLabel()
-	if not MudcrabTrackerLabel then
+	if not MudcrabTrackerLabel or MudcrabTrackerLabel:IsHidden() then
 		return
 	end
-	if not MudcrabTrackerLabel:IsHidden() then
-		MudcrabTrackerLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, crabs_db.counter))
-	end
+
+	MudcrabTrackerLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, crabs_db.counter))
 end
 
 local function updateKillstat(targetName)
@@ -123,7 +122,6 @@ local function onCombatEvent(
 		return
 	end
 
-	-- local trimmedTargetName = targetName:gsub("%^n$", "")
 	local trimmedTargetName = ZO_CachedStrFormat("<<C:1>>", targetName)
 	updateKillstat(trimmedTargetName)
 
@@ -131,18 +129,6 @@ local function onCombatEvent(
 	if score == nil then
 		return
 	end
-	-- Wasn't found directly via the trimmedTargetName so check partial string find -> Sloooooooooooow....
-	-- comment out for now, seems to be working fine with direct name match only
-	-- if not mudCrabDetected then
-	--	for possibleMudcrabNamePart, _ in pairs(crabsOfClientLang) do
-	--        if not mudCrabDetected then --security skip of loop if break below does not work
-	--        	mudCrabDetected = (str_find(trimmedTargetName, possibleMudcrabNamePart, 1, true) ~= nil and true) or false
-	--        	if mudCrabDetected then
-	--                break --end the for loop
-	--        	end
-	--    	end
-	--	end
-	-- end
 
 	crabs_db.counter = crabs_db.counter + score
 	if score == 1 then
@@ -161,12 +147,17 @@ local function onAddOnLoaded(_, addonName)
 	local defaults = {
 		counter = 0,
 		killstat = {},
+		counterEnabled = false,
 	}
 
 	crabs_db = ZO_SavedVars:NewAccountWide("MudcrabTracker_db", CRABS_DB_VERSION, nil, defaults)
 
 	updateLabel()
-	MudcrabTrackerLabel:SetHidden(true)
+	if crabs_db.counterEnabled then
+		MudcrabTrackerLabel:SetHidden(false)
+	else
+		MudcrabTrackerLabel:SetHidden(true)
+	end
 
 	--register for events
 	-- skip registering for player and player pet because only registering for companion somehow works even if no companion is unlocked
@@ -195,13 +186,15 @@ local function onAddOnLoaded(_, addonName)
 	end
 
 	SLASH_COMMANDS["/togglecrabs"] = function()
-		if MudcrabTrackerLabel:IsHidden() then
+		if crabs_db.counterEnabled then
+			MudcrabTrackerLabel:SetHidden(true)
+			crabs_db.counterEnabled = false
+			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_OFF)
+		else
 			MudcrabTrackerLabel:SetHidden(false)
+			crabs_db.counterEnabled = true
 			updateLabel()
 			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_ON)
-		else
-			MudcrabTrackerLabel:SetHidden(true)
-			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_OFF)
 		end
 	end
 end
