@@ -43,6 +43,7 @@ local crabNames = {
 		["Queen of the Reef"] = 15, -- Summerset boss
 		["Coral Mudcrab"] = 1, -- Summerset boss minions
 		["Mud Crab"] = 1, -- Solstice temple
+		["Gravelclaw"] = 1, -- Craglorn
 	},
 	-- German
 	["de"] = {
@@ -55,6 +56,7 @@ local crabNames = {
 		["Die Königin des Riffs"] = 15,
 		-- ["Korallenkrabbe"] = 1,
 		-- ["Schlammkrabbe"] = 1,
+		["Schotterkralle"] = 1,
 	},
 	-- Russian
 	["ru"] = {
@@ -67,6 +69,7 @@ local crabNames = {
 		["Королева Рифа"] = 15,
 		["Коралловый грязевой краб"] = 1,
 		["Грязевой краб"] = 1,
+		["Гравийный краб"] = 1,
 	},
 }
 local crabsOfClientLang = crabNames[clientLang]
@@ -116,47 +119,38 @@ local function onCombatEvent(
 	_abilityId_,
 	_overflow_
 )
-	if (result == ACTION_RESULT_DIED_XP) or (result == ACTION_RESULT_DIED) then
-		if not targetName or targetName == "" then
-			return
-		end
-
-		-- local trimmedTargetName = targetName:gsub("%^n$", "")
-		local trimmedTargetName = ZO_CachedStrFormat("<<C:1>>", targetName)
-		updateKillstat(trimmedTargetName)
-
-		local score = crabsOfClientLang[trimmedTargetName]
-		if score == nil then
-			return
-		end
-		-- Wasn't found directly via the trimmedTargetName so check partial string find -> Sloooooooooooow....
-		-- comment out for now, seems to be working fine with direct name match only
-		-- if not mudCrabDetected then
-		--	for possibleMudcrabNamePart, _ in pairs(crabsOfClientLang) do
-		--        if not mudCrabDetected then --security skip of loop if break below does not work
-		--        	mudCrabDetected = (str_find(trimmedTargetName, possibleMudcrabNamePart, 1, true) ~= nil and true) or false
-		--        	if mudCrabDetected then
-		--                break --end the for loop
-		--        	end
-		--    	end
-		--	end
-		-- end
-
-		crabs_db.counter = crabs_db.counter + score
-		if score == 1 then
-			print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, trimmedTargetName, tostring(crabs_db.counter)))
-		else
-			print(
-				string.format(
-					L.CHAT_MESSAGE_BOSS_KILLED,
-					trimmedTargetName,
-					tostring(score),
-					tostring(crabs_db.counter)
-				)
-			)
-		end
-		updateLabel()
+	if not targetName or targetName == "" then
+		return
 	end
+
+	-- local trimmedTargetName = targetName:gsub("%^n$", "")
+	local trimmedTargetName = ZO_CachedStrFormat("<<C:1>>", targetName)
+	updateKillstat(trimmedTargetName)
+
+	local score = crabsOfClientLang[trimmedTargetName]
+	if score == nil then
+		return
+	end
+	-- Wasn't found directly via the trimmedTargetName so check partial string find -> Sloooooooooooow....
+	-- comment out for now, seems to be working fine with direct name match only
+	-- if not mudCrabDetected then
+	--	for possibleMudcrabNamePart, _ in pairs(crabsOfClientLang) do
+	--        if not mudCrabDetected then --security skip of loop if break below does not work
+	--        	mudCrabDetected = (str_find(trimmedTargetName, possibleMudcrabNamePart, 1, true) ~= nil and true) or false
+	--        	if mudCrabDetected then
+	--                break --end the for loop
+	--        	end
+	--    	end
+	--	end
+	-- end
+
+	crabs_db.counter = crabs_db.counter + score
+	if score == 1 then
+		print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, trimmedTargetName, tostring(crabs_db.counter)))
+	else
+		print(string.format(L.CHAT_MESSAGE_BOSS_KILLED, trimmedTargetName, tostring(score), tostring(crabs_db.counter)))
+	end
+	updateLabel()
 end
 
 local function onAddOnLoaded(_, addonName)
@@ -176,14 +170,26 @@ local function onAddOnLoaded(_, addonName)
 
 	--register for events
 	-- skip registering for player and player pet because only registering for companion somehow works even if no companion is unlocked
-	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_companion", EVENT_COMBAT_EVENT, onCombatEvent)
+	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_companion_died_xp", EVENT_COMBAT_EVENT, onCombatEvent)
 	EVENT_MANAGER:AddFilterForEvent(
-		CRABS_ADDON_NAME .. "_combat_companion",
+		CRABS_ADDON_NAME .. "_combat_companion_died_xp",
 		EVENT_COMBAT_EVENT,
 		REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
-		COMBAT_UNIT_TYPE_COMPANION
+		COMBAT_UNIT_TYPE_COMPANION,
+		REGISTER_FILTER_COMBAT_RESULT,
+		ACTION_RESULT_DIED_XP
+	)
+	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_companion_died", EVENT_COMBAT_EVENT, onCombatEvent)
+	EVENT_MANAGER:AddFilterForEvent(
+		CRABS_ADDON_NAME .. "_combat_companion_died",
+		EVENT_COMBAT_EVENT,
+		REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
+		COMBAT_UNIT_TYPE_COMPANION,
+		REGISTER_FILTER_COMBAT_RESULT,
+		ACTION_RESULT_DIED
 	)
 
+	-- Slash Commands
 	SLASH_COMMANDS["/crabs"] = function()
 		print(string.format(L.CHAT_MESSAGE_CRABSTAT, tostring(crabs_db.counter)))
 	end
