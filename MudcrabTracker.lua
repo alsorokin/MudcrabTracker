@@ -46,6 +46,7 @@ local crabNames = {
 		["Coral Mudcrab"] = 1, -- Summerset boss minions
 		["Mud Crab"] = 1, -- Solstice temple
 		["Gravelclaw"] = 1, -- Craglorn
+		["Colossal Coral Crab"] = 5, -- Solstice
 	},
 	-- German
 	["de"] = {
@@ -59,6 +60,7 @@ local crabNames = {
 		-- ["Korallenkrabbe"] = 1,
 		-- ["Schlammkrabbe"] = 1,
 		["Schotterkralle"] = 1,
+		["Kolossale Korallenkrabbe"] = 5,
 	},
 	-- Russian
 	["ru"] = {
@@ -72,6 +74,7 @@ local crabNames = {
 		["Коралловый грязевой краб"] = 1,
 		["Грязевой краб"] = 1,
 		["Гравийный краб"] = 1,
+		["Огромный коралловый краб"] = 5,
 	},
 }
 local crabsOfClientLang = crabNames[clientLang]
