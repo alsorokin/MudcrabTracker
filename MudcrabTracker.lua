@@ -72,7 +72,7 @@ local crabNames = {
 		["Помощники из стаи грязевого краба грота"] = 1,
 		["Королева Рифа"] = 15,
 		["Коралловый грязевой краб"] = 1,
-		["Грязевой краб"] = 1,
+		-- ["Грязевой краб"] = 1,
 		["Гравийный краб"] = 1,
 		["Огромный коралловый краб"] = 5,
 	},
@@ -180,7 +180,7 @@ local function onAddOnLoaded(_, addonName)
 	if crabs_db.counterEnabled then
 		MudcrabTrackerIndicator:SetHidden(false)
 	else
-		MudcrabTrackerIncicator:SetHidden(true)
+		MudcrabTrackerIndicator:SetHidden(true)
 	end
 
 	--register for events
