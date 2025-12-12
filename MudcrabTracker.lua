@@ -158,6 +158,18 @@ local function restoreIndicatorPosition()
 	MudcrabTrackerIndicator:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, left, top)
 end
 
+local function toggleIndicatorOnSceneChange(currentScene)
+	if not crabs_db.counterEnabled then
+		return
+	end
+
+	if currentScene == SCENE_SHOWING then
+		MudcrabTrackerIndicator:SetHidden(false)
+	else
+		MudcrabTrackerIndicator:SetHidden(true)
+	end
+end
+
 local function onAddOnLoaded(_, addonName)
 	if addonName ~= CRABS_ADDON_NAME then
 		return
@@ -203,6 +215,9 @@ local function onAddOnLoaded(_, addonName)
 		REGISTER_FILTER_COMBAT_RESULT,
 		ACTION_RESULT_DIED
 	)
+
+	SCENE_MANAGER:GetScene("hud"):RegisterCallback("StateChange", toggleIndicatorOnSceneChange)
+	SCENE_MANAGER:GetScene("hudui"):RegisterCallback("StateChange", toggleIndicatorOnSceneChange)
 
 	-- Slash Commands
 	SLASH_COMMANDS["/crabs"] = function()
