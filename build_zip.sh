@@ -2,6 +2,7 @@
 set -euo pipefail
 
 FOLDER="MudcrabTracker"
+FOLDER_BIN="bin"
 
 version="$(grep -E '^## Version:' MudcrabTracker.txt \
     | sed -E 's/^## Version:[[:space:]]*//' \
@@ -22,6 +23,10 @@ cp MudcrabTracker.txt "$FOLDER"/
 cp MudcrabTracker.xml "$FOLDER"/
 
 zip -r "$ZIPNAME" "$FOLDER"
+
+# Create bin folder if it doesn't exist
+mkdir -p "$FOLDER_BIN"
+mv "$ZIPNAME" "$FOLDER_BIN"/
 
 rm -rf "$FOLDER"
 
