@@ -2,7 +2,7 @@
 ## Author: @Snay
 ## APIVersion: 101047
 ## SavedVariables: MudcrabTracker_db
-## Version: 0.0.14
+## Version: 0.0.15
 
 MudcrabTracker.lua
 MudcrabTracker.xml

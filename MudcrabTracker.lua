@@ -25,7 +25,7 @@ local localizedStrings = {
 	["ru"] = {
 		MUDCRAB_TRACKER_LABEL = "Очки крабов: %s",
 		CHAT_MESSAGE_MUDCRAB_KILLED = "%s убит. Очки крабов: %s",
-		CHAT_MESSAGE_BOSS_KILLED = "Вы победили %s и получили %s очков! Очки крабов: %s",
+		CHAT_MESSAGE_BOSS_KILLED = "Победа! %s больше не будет устрашать местных жителей. Вы заработали %s очков! Очки крабов: %s",
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Трекер грязекрабов теперь виден.",
 		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Трекер грязекрабов теперь скрыт.",
 		CHAT_MESSAGE_CRABSTAT = "Очки крабов: %s",
@@ -47,6 +47,7 @@ local crabNames = {
 		["Mud Crab"] = 1, -- Solstice temple
 		["Gravelclaw"] = 1, -- Craglorn
 		["Colossal Coral Crab"] = 5, -- Solstice
+		["Tidespite"] = 15, -- Solstice boss
 	},
 	-- German
 	["de"] = {
@@ -61,6 +62,7 @@ local crabNames = {
 		-- ["Schlammkrabbe"] = 1,
 		["Schotterkralle"] = 1,
 		["Kolossale Korallenkrabbe"] = 5,
+		["Gezeitentücke"] = 15,
 	},
 	-- Russian
 	["ru"] = {
@@ -75,6 +77,7 @@ local crabNames = {
 		-- ["Грязевой краб"] = 1,
 		["Гравийный краб"] = 1,
 		["Огромный коралловый краб"] = 5,
+		["Злоба Прилива"] = 15,
 	},
 }
 local crabsOfClientLang = crabNames[clientLang]
@@ -94,13 +97,12 @@ local function updateLabel()
 	MudcrabTrackerIndicatorLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, crabs_db.counter))
 end
 
-local function updateKillstat(targetName)
-	if crabs_db.killstat[targetName] ~= nil then
-		crabs_db.killstat[targetName] = crabs_db.killstat[targetName] + 1
+local function updateCrabKillstat(targetName)
+	if crabs_db.crabKillstat[targetName] ~= nil then
+		crabs_db.crabKillstat[targetName] = crabs_db.crabKillstat[targetName] + 1
 	else
-		crabs_db.killstat[targetName] = 1
+		crabs_db.crabKillstat[targetName] = 1
 	end
-	-- print(targetName .. ": " .. crabs_db.killstat[targetName])
 end
 
 local function onCombatEvent(
@@ -128,13 +130,12 @@ local function onCombatEvent(
 	end
 
 	local trimmedTargetName = ZO_CachedStrFormat("<<C:1>>", targetName)
-	updateKillstat(trimmedTargetName)
-
 	local score = crabsOfClientLang[trimmedTargetName]
 	if score == nil then
 		return
 	end
 
+	updateCrabKillstat(trimmedTargetName)
 	crabs_db.counter = crabs_db.counter + score
 	if score == 1 then
 		print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, trimmedTargetName, tostring(crabs_db.counter)))
@@ -170,6 +171,24 @@ local function toggleIndicatorOnSceneChange(currentScene)
 	end
 end
 
+local function doCrabsDbMigrations(db)
+	-- ensure crabKillstat exists
+	if db.crabKillstat == nil then
+		db.crabKillstat = {}
+	end
+
+	-- migrate old killstat to crabKillstat
+	if db.killstat ~= nil then
+		for k, v in pairs(db.killstat) do
+			if crabsOfClientLang[k] ~= nil then
+				db.crabKillstat[k] = v
+			end
+		end
+	end
+	-- killstat is deprecated, so erase it to not waste space
+	db.killstat = nil
+end
+
 local function onAddOnLoaded(_, addonName)
 	if addonName ~= CRABS_ADDON_NAME then
 		return
@@ -177,7 +196,8 @@ local function onAddOnLoaded(_, addonName)
 
 	local defaults = {
 		counter = 0,
-		killstat = {},
+		killstat = nil,
+		crabKillstat = {},
 		counterEnabled = false,
 		counterPosition = {
 			left = DEFAULT_CRABS_LABEL_LEFT,
@@ -186,6 +206,7 @@ local function onAddOnLoaded(_, addonName)
 	}
 
 	crabs_db = ZO_SavedVars:NewAccountWide("MudcrabTracker_db", CRABS_DB_VERSION, nil, defaults)
+	doCrabsDbMigrations(crabs_db)
 
 	updateLabel()
 	restoreIndicatorPosition()
