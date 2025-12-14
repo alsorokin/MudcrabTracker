@@ -4,6 +4,8 @@ local crabs_db
 local clientLang = GetCVar("language.2")
 local DEFAULT_CRABS_LABEL_LEFT = 10
 local DEFAULT_CRABS_LABEL_TOP = 30
+local cumulativeScore = 0
+local cumulativeCrabs = 0
 
 local localizedStrings = {
 	["en"] = {
@@ -13,6 +15,7 @@ local localizedStrings = {
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Mudcrab Tracker is now visible.",
 		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Mudcrab Tracker is now hidden.",
 		CHAT_MESSAGE_CRABSTAT = "Crab score: %s",
+		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "You killed %s crabs, good job! Total crab score: %s",
 	},
 	["de"] = {
 		MUDCRAB_TRACKER_LABEL = "Krabbenscore: %s",
@@ -21,6 +24,7 @@ local localizedStrings = {
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Mudcrab Tracker ist jetzt sichtbar.",
 		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Mudcrab Tracker ist jetzt versteckt.",
 		CHAT_MESSAGE_CRABSTAT = "Krabbenscore: %s",
+		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "Du hast %s Krabben getötet, gut gemacht! Krabbenscore: %s",
 	},
 	["ru"] = {
 		MUDCRAB_TRACKER_LABEL = "Очки крабов: %s",
@@ -29,6 +33,7 @@ local localizedStrings = {
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Трекер грязекрабов теперь виден.",
 		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Трекер грязекрабов теперь скрыт.",
 		CHAT_MESSAGE_CRABSTAT = "Очки крабов: %s",
+		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "Вы убили %s крабов, хорошая работа! Очки крабов: %s",
 	},
 }
 local L = localizedStrings[clientLang] or localizedStrings["en"]
@@ -105,6 +110,37 @@ local function updateCrabKillstat(targetName)
 	end
 end
 
+local function onCrabKilled(targetName, score)
+	updateCrabKillstat(targetName)
+	cumulativeScore = cumulativeScore + score
+	cumulativeCrabs = cumulativeCrabs + 1
+
+	EVENT_MANAGER:RegisterForUpdate(CRABS_ADDON_NAME .. "CrabKillDebounce", 5000, function()
+		EVENT_MANAGER:UnregisterForUpdate(CRABS_ADDON_NAME .. "CrabKillDebounce")
+		crabs_db.counter = crabs_db.counter + cumulativeScore
+		if cumulativeCrabs == 1 then
+			if cumulativeScore == 1 then
+				print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, targetName, tostring(crabs_db.counter)))
+			else
+				print(
+					string.format(L.CHAT_MESSAGE_BOSS_KILLED, targetName, tostring(score), tostring(crabs_db.counter))
+				)
+			end
+		else
+			print(
+				string.format(
+					L.CHAT_MESSAGE_MULTIPLE_CRABS_KILLED,
+					tostring(cumulativeCrabs),
+					tostring(crabs_db.counter)
+				)
+			)
+		end
+		cumulativeScore = 0
+		cumulativeCrabs = 0
+		updateLabel()
+	end)
+end
+
 local function onCombatEvent(
 	_eventCode_,
 	result,
@@ -135,14 +171,7 @@ local function onCombatEvent(
 		return
 	end
 
-	updateCrabKillstat(trimmedTargetName)
-	crabs_db.counter = crabs_db.counter + score
-	if score == 1 then
-		print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, trimmedTargetName, tostring(crabs_db.counter)))
-	else
-		print(string.format(L.CHAT_MESSAGE_BOSS_KILLED, trimmedTargetName, tostring(score), tostring(crabs_db.counter)))
-	end
-	updateLabel()
+	onCrabKilled(trimmedTargetName, score)
 end
 
 local function restoreIndicatorPosition()
