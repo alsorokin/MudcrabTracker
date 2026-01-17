@@ -12,7 +12,7 @@
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" />
           <Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetX="0" offsetY="0" />
         </Label>
-        <Label name="$(parent)TitleLabel" width = "275" height="24" font="ZoFontGame|20" inheritAlpha="true" color="FFFFFF"
+        <Label name="$(parent)RankLabel" width = "275" height="24" font="ZoFontGame|20" inheritAlpha="true" color="FFFFFF"
             wrapMode="TRUNCATE" verticalAlignment="TOP" horizontalAlignment="CENTER">
           <Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="0" offsetY="25" />
           <Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetX="0" offsetY="25" />

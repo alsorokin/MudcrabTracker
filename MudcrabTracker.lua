@@ -7,54 +7,54 @@ local DEFAULT_CRABS_LABEL_TOP = 30
 local cumulativeScore = 0
 local cumulativeCrabs = 0
 
-local playerTitles = {
+local playerRanks = {
 	["en"] = {
-		{ threshold = 0, title = "Mudcrab Enthusiast" },
-		{ threshold = 10, title = "Mudcrab Wrangler" },
-		{ threshold = 100, title = "Mudcrab Hunter" },
-		{ threshold = 250, title = "Mudcrab Exterminator" },
-		{ threshold = 500, title = "Mudcrab Slayer" },
-		{ threshold = 1000, title = "Mudcrab Vanquisher" },
-		{ threshold = 2500, title = "Mudcrab Conqueror" },
-		{ threshold = 5000, title = "Mudcrab Champion" },
-		{ threshold = 10000, title = "Mudcrab Legend" },
-		{ threshold = 100000, title = "Mudcrab Lord" },
-		{ threshold = 1000000, title = "Mudcrab Deity" },
+		{ threshold = 0, rank = "Mudcrab Enthusiast" },
+		{ threshold = 10, rank = "Mudcrab Wrangler" },
+		{ threshold = 100, rank = "Mudcrab Hunter" },
+		{ threshold = 250, rank = "Mudcrab Exterminator" },
+		{ threshold = 500, rank = "Mudcrab Slayer" },
+		{ threshold = 1000, rank = "Mudcrab Vanquisher" },
+		{ threshold = 2500, rank = "Mudcrab Conqueror" },
+		{ threshold = 5000, rank = "Mudcrab Champion" },
+		{ threshold = 10000, rank = "Mudcrab Legend" },
+		{ threshold = 100000, rank = "Mudcrab Lord" },
+		{ threshold = 1000000, rank = "Mudcrab Deity" },
 	},
 	["de"] = {
-		{ threshold = 0, title = "Schlammkrabben-Enthusiast" },
-		{ threshold = 10, title = "Schlammkrabben-Hüter" },
-		{ threshold = 100, title = "Schlammkrabben-Jäger" },
-		{ threshold = 250, title = "Schlammkrabben-Ausrotter" },
-		{ threshold = 500, title = "Schlammkrabben-Schlächter" },
-		{ threshold = 1000, title = "Schlammkrabben-Besieger" },
-		{ threshold = 2500, title = "Schlammkrabben-Eroberer" },
-		{ threshold = 5000, title = "Schlammkrabben-Champion" },
-		{ threshold = 10000, title = "Schlammkrabben-Legende" },
-		{ threshold = 100000, title = "Schlammkrabben-Lord" },
-		{ threshold = 1000000, title = "Schlammkrabben-Gottheit" },
+		{ threshold = 0, rank = "Schlammkrabben-Enthusiast" },
+		{ threshold = 10, rank = "Schlammkrabben-Hüter" },
+		{ threshold = 100, rank = "Schlammkrabben-Jäger" },
+		{ threshold = 250, rank = "Schlammkrabben-Ausrotter" },
+		{ threshold = 500, rank = "Schlammkrabben-Schlächter" },
+		{ threshold = 1000, rank = "Schlammkrabben-Besieger" },
+		{ threshold = 2500, rank = "Schlammkrabben-Eroberer" },
+		{ threshold = 5000, rank = "Schlammkrabben-Champion" },
+		{ threshold = 10000, rank = "Schlammkrabben-Legende" },
+		{ threshold = 100000, rank = "Schlammkrabben-Lord" },
+		{ threshold = 1000000, rank = "Schlammkrabben-Gottheit" },
 	},
 	["ru"] = {
-		{ threshold = 0, title = "Любитель Грязекрабов" },
-		{ threshold = 10, title = "Укротитель Грязекрабов" },
-		{ threshold = 100, title = "Охотник на Грязекрабов" },
-		{ threshold = 250, title = "Истребитель Грязекрабов" },
-		{ threshold = 500, title = "Убийца Грязекрабов" },
-		{ threshold = 1000, title = "Победитель Грязекрабов" },
-		{ threshold = 2500, title = "Завоеватель Грязекрабов" },
-		{ threshold = 5000, title = "Чемпион Грязекрабов" },
-		{ threshold = 10000, title = "Легенда Грязекрабов" },
-		{ threshold = 100000, title = "Властелин Грязекрабов" },
-		{ threshold = 1000000, title = "Грязекрабий Бог" },
+		{ threshold = 0, rank = "Любитель Грязекрабов" },
+		{ threshold = 10, rank = "Укротитель Грязекрабов" },
+		{ threshold = 100, rank = "Охотник на Грязекрабов" },
+		{ threshold = 250, rank = "Истребитель Грязекрабов" },
+		{ threshold = 500, rank = "Убийца Грязекрабов" },
+		{ threshold = 1000, rank = "Победитель Грязекрабов" },
+		{ threshold = 2500, rank = "Завоеватель Грязекрабов" },
+		{ threshold = 5000, rank = "Чемпион Грязекрабов" },
+		{ threshold = 10000, rank = "Легенда Грязекрабов" },
+		{ threshold = 100000, rank = "Властелин Грязекрабов" },
+		{ threshold = 1000000, rank = "Грязекрабий Бог" },
 	},
 }
-local titlesOfClientLang = playerTitles[clientLang]
-local lastPlayerTitle = ""
+local ranksOfClientLang = playerRanks[clientLang]
+local lastPlayerRank = ""
 
 local localizedStrings = {
 	["en"] = {
 		MUDCRAB_TRACKER_LABEL = "Crab score: %s",
-		MUDCRAB_TRACKER_TITLE = "Title: %s",
+		MUDCRAB_TRACKER_RANK = "Rank: %s",
 		CHAT_MESSAGE_MUDCRAB_KILLED = "You killed |cAAAAFF%s|r. Total crab score: |cAAAAFF%s|r",
 		CHAT_MESSAGE_BOSS_KILLED = "At last. The shores are free from this terror you call... |cAAAAFF%s|r. You earned |cAAAAFF%s|r points! Total crab score: |cAAAAFF%s|r",
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Mudcrab Tracker is now visible.",
@@ -62,12 +62,12 @@ local localizedStrings = {
 		CHAT_MESSAGE_CRABSTAT = "Crab score: |cAAAAFF%s|r. You are a |cAAAAFF%s|r!",
 		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "You killed |cAAAAFF%s|r crabs, good job! Total crab score: |cAAAAFF%s|r",
 		CHAT_MESSAGE_CRABS_TO_CHAT = "[MudcrabTracker] My crab score is: %s. I'm a %s!",
-		CHAT_MESSAGE_NEW_TITLE = "You have attained a new crab title. You are now |cAAAAFF%s|r!",
-		CHAT_MESSAGE_NEXT_TITLE = "Crab score needed for next title: |cAAAAFF%s|r",
+		CHAT_MESSAGE_NEW_RANK = "You have attained a new crab rank. You are now |cAAAAFF%s|r!",
+		CHAT_MESSAGE_NEXT_RANK = "Crab score needed for next rank: |cAAAAFF%s|r",
 	},
 	["de"] = {
 		MUDCRAB_TRACKER_LABEL = "Krabbenscore: |cAAAAFF%s|r",
-		MUDCRAB_TRACKER_TITLE = "Titel: |cAAAAFF%s|r",
+		MUDCRAB_TRACKER_RANK = "Rang: |cAAAAFF%s|r",
 		CHAT_MESSAGE_MUDCRAB_KILLED = "Du hast |cAAAAFF%s|r getötet. Krabbenscore: |cAAAAFF%s|r",
 		CHAT_MESSAGE_BOSS_KILLED = "Endlich. Die Ufer sind frei von diesen Schrecken, die ihr ... |cAAAAFF%s|r nennt. Du hast |cAAAAFF%s|r Punkte erhalten! Krabbenscore: |cAAAAFF%s|r",
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Mudcrab Tracker ist jetzt sichtbar.",
@@ -75,12 +75,12 @@ local localizedStrings = {
 		CHAT_MESSAGE_CRABSTAT = "Krabbenscore: |cAAAAFF%s|r. Du bist ein |cAAAAFF%s|r!",
 		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "Du hast |cAAAAFF%s|r Krabben getötet, gut gemacht! Krabbenscore: |cAAAAFF%s|r",
 		CHAT_MESSAGE_CRABS_TO_CHAT = "[MudcrabTracker] Mein Krabbenscore ist: %s. Ich bin ein %s!",
-		CHAT_MESSAGE_NEW_TITLE = "Du hast einen neuen Krabbentitel erreicht. Du bist jetzt |cAAAAFF%s|r!",
-		CHAT_MESSAGE_NEXT_TITLE = "Krabbenscore für den nächsten Titel benötigt: |cAAAAFF%s|r",
+		CHAT_MESSAGE_NEW_RANK = "Du hast einen neuen Krabbenrang erreicht. Du bist jetzt |cAAAAFF%s|r!",
+		CHAT_MESSAGE_NEXT_RANK = "Krabbenscore für den nächsten Rang benötigt: |cAAAAFF%s|r",
 	},
 	["ru"] = {
 		MUDCRAB_TRACKER_LABEL = "Очки крабов: |cAAAAFF%s|r",
-		MUDCRAB_TRACKER_TITLE = "Звание: |cAAAAFF%s|r",
+		MUDCRAB_TRACKER_RANK = "Звание: |cAAAAFF%s|r",
 		CHAT_MESSAGE_MUDCRAB_KILLED = "|cAAAAFF%s|r убит. Очки крабов: |cAAAAFF%s|r",
 		CHAT_MESSAGE_BOSS_KILLED = "Наконец этот берег свободен от напасти, имя которой... |cAAAAFF%s|r. Вы заработали |cAAAAFF%s|r очков! Очки крабов: |cAAAAFF%s|r",
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Трекер грязекрабов теперь виден.",
@@ -88,8 +88,8 @@ local localizedStrings = {
 		CHAT_MESSAGE_CRABSTAT = "Очки крабов: |cAAAAFF%s|r. Вы |cAAAAFF%s|r!",
 		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "Вы убили |cAAAAFF%s|r крабов, хорошая работа! Очки крабов: |cAAAAFF%s|r",
 		CHAT_MESSAGE_CRABS_TO_CHAT = "[MudcrabTracker] Мои очки крабов: %s. Я %s!",
-		CHAT_MESSAGE_NEW_TITLE = "Вы получили новое крабозвание. Вы теперь |cAAAAFF%s|r!",
-		CHAT_MESSAGE_NEXT_TITLE = "Для следующего крабозвания нужно набрать |cAAAAFF%s|r очков крабов.",
+		CHAT_MESSAGE_NEW_RANK = "Вы получили новое крабозвание. Вы теперь |cAAAAFF%s|r!",
+		CHAT_MESSAGE_NEXT_RANK = "Для следующего крабозвания нужно набрать |cAAAAFF%s|r очков крабов.",
 	},
 }
 local L = localizedStrings[clientLang] or localizedStrings["en"]
@@ -151,24 +151,24 @@ local function print(msg)
 	CHAT_SYSTEM:AddMessage(msg)
 end
 
-local function getPlayerTitleForScore(score)
-	local title = ""
-	for _, t in ipairs(titlesOfClientLang) do
-		if score >= t.threshold then
-			title = t.title
+local function getPlayerRankForScore(score)
+	local rank = ""
+	for _, r in ipairs(ranksOfClientLang) do
+		if score >= r.threshold then
+			rank = r.rank
 		else
 			break
 		end
 	end
-	return title
+	return rank
 end
 
-local function getRequiredScoreForNextTitle(currentScore)
+local function getRequiredScoreForNextRank(currentScore)
 	local requiredScore = nil
-	for _, t in ipairs(titlesOfClientLang) do
-		if t.threshold > currentScore then
-			if requiredScore == nil or t.threshold < requiredScore then
-				requiredScore = t.threshold
+	for _, r in ipairs(ranksOfClientLang) do
+		if r.threshold > currentScore then
+			if requiredScore == nil or r.threshold < requiredScore then
+				requiredScore = r.threshold
 			end
 		end
 	end
@@ -181,8 +181,8 @@ local function updateLabel()
 	end
 
 	MudcrabTrackerIndicatorLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, crabs_db.counter))
-	MudcrabTrackerIndicatorTitleLabel:SetText(
-		string.format(L.MUDCRAB_TRACKER_TITLE, getPlayerTitleForScore(crabs_db.counter))
+	MudcrabTrackerIndicatorRankLabel:SetText(
+		string.format(L.MUDCRAB_TRACKER_RANK, getPlayerRankForScore(crabs_db.counter))
 	)
 end
 
@@ -220,13 +220,13 @@ local function onCrabKilled(targetName, score)
 				)
 			)
 		end
-		local newPlayerTitle = getPlayerTitleForScore(crabs_db.counter)
-		if newPlayerTitle ~= lastPlayerTitle or isFirstKill then
-			lastPlayerTitle = newPlayerTitle
-			print(string.format(L.CHAT_MESSAGE_NEW_TITLE, newPlayerTitle))
-			local nextTitleScore = getRequiredScoreForNextTitle(crabs_db.counter)
-			if nextTitleScore ~= nil and nextTitleScore > crabs_db.counter then
-				print(string.format(L.CHAT_MESSAGE_NEXT_TITLE, tostring(nextTitleScore)))
+		local newPlayerRank = getPlayerRankForScore(crabs_db.counter)
+		if newPlayerRank ~= lastPlayerRank or isFirstKill then
+			lastPlayerRank = newPlayerRank
+			print(string.format(L.CHAT_MESSAGE_NEW_RANK, newPlayerRank))
+			local nextRankScore = getRequiredScoreForNextRank(crabs_db.counter)
+			if nextRankScore ~= nil and nextRankScore > crabs_db.counter then
+				print(string.format(L.CHAT_MESSAGE_NEXT_RANK, tostring(nextRankScore)))
 			end
 		end
 		cumulativeScore = 0
@@ -298,7 +298,7 @@ local function crabStatToChat()
 	local statString = string.format(
 		L.CHAT_MESSAGE_CRABS_TO_CHAT,
 		tostring(crabs_db.counter),
-		getPlayerTitleForScore(crabs_db.counter)
+		getPlayerRankForScore(crabs_db.counter)
 	)
 	CHAT_SYSTEM.textEntry.editControl:InsertText(statString)
 end
@@ -345,7 +345,7 @@ local function onAddOnLoaded(_, addonName)
 
 	crabs_db = ZO_SavedVars:NewAccountWide("MudcrabTracker_db", CRABS_DB_VERSION, nil, defaults)
 	doCrabsDbMigrations(crabs_db)
-	lastPlayerTitle = getPlayerTitleForScore(crabs_db.counter)
+	lastPlayerRank = getPlayerRankForScore(crabs_db.counter)
 
 	updateLabel()
 	restoreIndicatorPosition()
@@ -385,7 +385,7 @@ local function onAddOnLoaded(_, addonName)
 			return
 		end
 		print(
-			string.format(L.CHAT_MESSAGE_CRABSTAT, tostring(crabs_db.counter), getPlayerTitleForScore(crabs_db.counter))
+			string.format(L.CHAT_MESSAGE_CRABSTAT, tostring(crabs_db.counter), getPlayerRankForScore(crabs_db.counter))
 		)
 	end
 
