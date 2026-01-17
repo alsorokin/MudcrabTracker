@@ -16,6 +16,7 @@ local localizedStrings = {
 		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Mudcrab Tracker is now hidden.",
 		CHAT_MESSAGE_CRABSTAT = "Crab score: %s",
 		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "You killed %s crabs, good job! Total crab score: %s",
+		CHAT_MESSAGE_CRABS_TO_CHAT = "[MudcrabTracker] My crab score is: %s",
 	},
 	["de"] = {
 		MUDCRAB_TRACKER_LABEL = "Krabbenscore: %s",
@@ -25,6 +26,7 @@ local localizedStrings = {
 		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Mudcrab Tracker ist jetzt versteckt.",
 		CHAT_MESSAGE_CRABSTAT = "Krabbenscore: %s",
 		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "Du hast %s Krabben getötet, gut gemacht! Krabbenscore: %s",
+		CHAT_MESSAGE_CRABS_TO_CHAT = "[MudcrabTracker] Mein Krabbenscore ist: %s",
 	},
 	["ru"] = {
 		MUDCRAB_TRACKER_LABEL = "Очки крабов: %s",
@@ -34,6 +36,7 @@ local localizedStrings = {
 		CHAT_MESSAGE_TRACKER_TOGGLE_OFF = "Трекер грязекрабов теперь скрыт.",
 		CHAT_MESSAGE_CRABSTAT = "Очки крабов: %s",
 		CHAT_MESSAGE_MULTIPLE_CRABS_KILLED = "Вы убили %s крабов, хорошая работа! Очки крабов: %s",
+		CHAT_MESSAGE_CRABS_TO_CHAT = "[MudcrabTracker] Мои очки крабов: %s",
 	},
 }
 local L = localizedStrings[clientLang] or localizedStrings["en"]
@@ -200,6 +203,11 @@ local function toggleIndicatorOnSceneChange(currentScene)
 	end
 end
 
+local function crabStatToChat()
+	local statString = string.format(L.CHAT_MESSAGE_CRABS_TO_CHAT, tostring(crabs_db.counter))
+	CHAT_SYSTEM.textEntry.editControl:InsertText(statString)
+end
+
 local function doCrabsDbMigrations(db)
 	-- ensure crabKillstat exists
 	if db.crabKillstat == nil then
@@ -285,6 +293,10 @@ local function onAddOnLoaded(_, addonName)
 			updateLabel()
 			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_ON)
 		end
+	end
+
+	SLASH_COMMANDS["/crabstochat"] = function()
+		crabStatToChat()
 	end
 end
 
