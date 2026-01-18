@@ -1,9 +1,6 @@
-local CRABS_ADDON_NAME = "MudcrabTracker"
-local CRABS_DB_VERSION = "0.0.1"
-local crabs_db
+-- Locals
+local MT = MudcrabTracker
 local clientLang = GetCVar("language.2")
-local DEFAULT_CRABS_LABEL_LEFT = 10
-local DEFAULT_CRABS_LABEL_TOP = 30
 local cumulativeScore = 0
 local cumulativeCrabs = 0
 
@@ -147,7 +144,23 @@ if crabsOfClientLang == nil then
 	return
 end
 
-local function print(msg)
+local DEFAULT_CRABS_LABEL_LEFT = 10
+local DEFAULT_CRABS_LABEL_TOP = 30
+local defaults = {
+	counter = 0,
+	killstat = nil,
+	crabKillstat = {},
+	counterEnabled = false,
+	counterPosition = {
+		left = DEFAULT_CRABS_LABEL_LEFT,
+		top = DEFAULT_CRABS_LABEL_TOP,
+	},
+	lootedItems = {},
+}
+
+-- Functions
+
+MudcrabTracker.print = function(msg)
 	CHAT_SYSTEM:AddMessage(msg)
 end
 
@@ -176,21 +189,27 @@ local function getRequiredScoreForNextRank(currentScore)
 end
 
 local function updateLabel()
+	if MT.db == nil then
+		return
+	end
 	if not MudcrabTrackerIndicator or MudcrabTrackerIndicator:IsHidden() then
 		return
 	end
 
-	MudcrabTrackerIndicatorLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, crabs_db.counter))
+	MudcrabTrackerIndicatorLabel:SetText(string.format(L.MUDCRAB_TRACKER_LABEL, MT.db.counter))
 	MudcrabTrackerIndicatorRankLabel:SetText(
-		string.format(L.MUDCRAB_TRACKER_RANK, getPlayerRankForScore(crabs_db.counter))
+		string.format(L.MUDCRAB_TRACKER_RANK, getPlayerRankForScore(MT.db.counter))
 	)
 end
 
 local function updateCrabKillstat(targetName)
-	if crabs_db.crabKillstat[targetName] ~= nil then
-		crabs_db.crabKillstat[targetName] = crabs_db.crabKillstat[targetName] + 1
+	if MT.db == nil then
+		return
+	end
+	if MT.db.crabKillstat[targetName] ~= nil then
+		MT.db.crabKillstat[targetName] = MT.db.crabKillstat[targetName] + 1
 	else
-		crabs_db.crabKillstat[targetName] = 1
+		MT.db.crabKillstat[targetName] = 1
 	end
 end
 
@@ -199,34 +218,33 @@ local function onCrabKilled(targetName, score)
 	cumulativeScore = cumulativeScore + score
 	cumulativeCrabs = cumulativeCrabs + 1
 
-	EVENT_MANAGER:RegisterForUpdate(CRABS_ADDON_NAME .. "CrabKillDebounce", 5000, function()
-		EVENT_MANAGER:UnregisterForUpdate(CRABS_ADDON_NAME .. "CrabKillDebounce")
-		local isFirstKill = crabs_db.counter == 0
-		crabs_db.counter = crabs_db.counter + cumulativeScore
+	EVENT_MANAGER:RegisterForUpdate(MudcrabTracker.ADDON_NAME .. "CrabKillDebounce", 5000, function()
+		if MT.db == nil then
+			return
+		end
+		EVENT_MANAGER:UnregisterForUpdate(MudcrabTracker.ADDON_NAME .. "CrabKillDebounce")
+		local isFirstKill = MT.db.counter == 0
+		MT.db.counter = MT.db.counter + cumulativeScore
 		if cumulativeCrabs == 1 then
 			if cumulativeScore == 1 then
-				print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, targetName, tostring(crabs_db.counter)))
+				MudcrabTracker.print(string.format(L.CHAT_MESSAGE_MUDCRAB_KILLED, targetName, tostring(MT.db.counter)))
 			else
-				print(
-					string.format(L.CHAT_MESSAGE_BOSS_KILLED, targetName, tostring(score), tostring(crabs_db.counter))
+				MudcrabTracker.print(
+					string.format(L.CHAT_MESSAGE_BOSS_KILLED, targetName, tostring(score), tostring(MT.db.counter))
 				)
 			end
 		else
-			print(
-				string.format(
-					L.CHAT_MESSAGE_MULTIPLE_CRABS_KILLED,
-					tostring(cumulativeCrabs),
-					tostring(crabs_db.counter)
-				)
+			MudcrabTracker.print(
+				string.format(L.CHAT_MESSAGE_MULTIPLE_CRABS_KILLED, tostring(cumulativeCrabs), tostring(MT.db.counter))
 			)
 		end
-		local newPlayerRank = getPlayerRankForScore(crabs_db.counter)
+		local newPlayerRank = getPlayerRankForScore(MT.db.counter)
 		if newPlayerRank ~= lastPlayerRank or isFirstKill then
 			lastPlayerRank = newPlayerRank
-			print(string.format(L.CHAT_MESSAGE_NEW_RANK, newPlayerRank))
-			local nextRankScore = getRequiredScoreForNextRank(crabs_db.counter)
-			if nextRankScore ~= nil and nextRankScore > crabs_db.counter then
-				print(string.format(L.CHAT_MESSAGE_NEXT_RANK, tostring(nextRankScore)))
+			MudcrabTracker.print(string.format(L.CHAT_MESSAGE_NEW_RANK, newPlayerRank))
+			local nextRankScore = getRequiredScoreForNextRank(MT.db.counter)
+			if nextRankScore ~= nil and nextRankScore > MT.db.counter then
+				MudcrabTracker.print(string.format(L.CHAT_MESSAGE_NEXT_RANK, tostring(nextRankScore)))
 			end
 		end
 		cumulativeScore = 0
@@ -269,21 +287,27 @@ local function onCombatEvent(
 end
 
 local function restoreIndicatorPosition()
-	if crabs_db.counterPosition == nil then
-		crabs_db.counterPosition = {
-			left = DEFAULT_CRABS_LABEL_LEFT,
-			top = DEFAULT_CRABS_LABEL_TOP,
+	if MT.db == nil then
+		return
+	end
+	if MT.db.counterPosition == nil then
+		MT.db.counterPosition = {
+			left = MudcrabTracker.DEFAULT_CRABS_LABEL_LEFT,
+			top = MudcrabTracker.DEFAULT_CRABS_LABEL_TOP,
 		}
 	end
-	local left = crabs_db.counterPosition.left
-	local top = crabs_db.counterPosition.top
+	local left = MT.db.counterPosition.left
+	local top = MT.db.counterPosition.top
 
 	MudcrabTrackerIndicator:ClearAnchors()
 	MudcrabTrackerIndicator:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, left, top)
 end
 
 local function toggleIndicatorOnSceneChange(currentScene)
-	if not crabs_db.counterEnabled then
+	if MT.db == nil then
+		return
+	end
+	if not MT.db.counterEnabled then
 		return
 	end
 
@@ -295,17 +319,20 @@ local function toggleIndicatorOnSceneChange(currentScene)
 end
 
 local function crabStatToChat()
-	local statString = string.format(
-		L.CHAT_MESSAGE_CRABS_TO_CHAT,
-		tostring(crabs_db.counter),
-		getPlayerRankForScore(crabs_db.counter)
-	)
+	if MT.db == nil then
+		return
+	end
+	local statString =
+		string.format(L.CHAT_MESSAGE_CRABS_TO_CHAT, tostring(MT.db.counter), getPlayerRankForScore(MT.db.counter))
 	CHAT_SYSTEM.textEntry.editControl:InsertText(statString)
 end
 
 local function resetCrabScore()
-	crabs_db.counter = 0
-	crabs_db.crabKillstat = {}
+	if MT.db == nil then
+		return
+	end
+	MT.db.counter = 0
+	MT.db.crabKillstat = {}
 	updateLabel()
 end
 
@@ -328,28 +355,21 @@ local function doCrabsDbMigrations(db)
 end
 
 local function onAddOnLoaded(_, addonName)
-	if addonName ~= CRABS_ADDON_NAME then
+	if addonName ~= MudcrabTracker.ADDON_NAME then
 		return
 	end
 
-	local defaults = {
-		counter = 0,
-		killstat = nil,
-		crabKillstat = {},
-		counterEnabled = false,
-		counterPosition = {
-			left = DEFAULT_CRABS_LABEL_LEFT,
-			top = DEFAULT_CRABS_LABEL_TOP,
-		},
-	}
+	MT.db = ZO_SavedVars:NewAccountWide("MudcrabTracker_db", "0.0.1", nil, defaults)
+	if MT.db == nil then
+		return
+	end
 
-	crabs_db = ZO_SavedVars:NewAccountWide("MudcrabTracker_db", CRABS_DB_VERSION, nil, defaults)
-	doCrabsDbMigrations(crabs_db)
-	lastPlayerRank = getPlayerRankForScore(crabs_db.counter)
+	doCrabsDbMigrations(MT.db)
+	lastPlayerRank = getPlayerRankForScore(MT.db.counter)
 
 	updateLabel()
 	restoreIndicatorPosition()
-	if crabs_db.counterEnabled then
+	if MT.db.counterEnabled then
 		MudcrabTrackerIndicator:SetHidden(false)
 	else
 		MudcrabTrackerIndicator:SetHidden(true)
@@ -357,18 +377,26 @@ local function onAddOnLoaded(_, addonName)
 
 	--register for events
 	-- skip registering for player and player pet because only registering for companion somehow works even if no companion is unlocked
-	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_companion_died_xp", EVENT_COMBAT_EVENT, onCombatEvent)
+	EVENT_MANAGER:RegisterForEvent(
+		MudcrabTracker.ADDON_NAME .. "_combat_companion_died_xp",
+		EVENT_COMBAT_EVENT,
+		onCombatEvent
+	)
 	EVENT_MANAGER:AddFilterForEvent(
-		CRABS_ADDON_NAME .. "_combat_companion_died_xp",
+		MudcrabTracker.ADDON_NAME .. "_combat_companion_died_xp",
 		EVENT_COMBAT_EVENT,
 		REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
 		COMBAT_UNIT_TYPE_COMPANION,
 		REGISTER_FILTER_COMBAT_RESULT,
 		ACTION_RESULT_DIED_XP
 	)
-	EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_combat_companion_died", EVENT_COMBAT_EVENT, onCombatEvent)
+	EVENT_MANAGER:RegisterForEvent(
+		MudcrabTracker.ADDON_NAME .. "_combat_companion_died",
+		EVENT_COMBAT_EVENT,
+		onCombatEvent
+	)
 	EVENT_MANAGER:AddFilterForEvent(
-		CRABS_ADDON_NAME .. "_combat_companion_died",
+		MudcrabTracker.ADDON_NAME .. "_combat_companion_died",
 		EVENT_COMBAT_EVENT,
 		REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE,
 		COMBAT_UNIT_TYPE_COMPANION,
@@ -376,32 +404,34 @@ local function onAddOnLoaded(_, addonName)
 		ACTION_RESULT_DIED
 	)
 
+	MudcrabTracker.LootLogger.startLogging()
+
 	SCENE_MANAGER:GetScene("hud"):RegisterCallback("StateChange", toggleIndicatorOnSceneChange)
 	SCENE_MANAGER:GetScene("hudui"):RegisterCallback("StateChange", toggleIndicatorOnSceneChange)
 
 	-- Slash Commands
 	SLASH_COMMANDS["/crabs"] = function()
-		if not crabs_db then
+		if not MT.db then
 			return
 		end
-		print(
-			string.format(L.CHAT_MESSAGE_CRABSTAT, tostring(crabs_db.counter), getPlayerRankForScore(crabs_db.counter))
+		MudcrabTracker.print(
+			string.format(L.CHAT_MESSAGE_CRABSTAT, tostring(MT.db.counter), getPlayerRankForScore(MT.db.counter))
 		)
 	end
 
 	SLASH_COMMANDS["/togglecrabs"] = function()
-		if not crabs_db then
+		if not MT.db then
 			return
 		end
-		if crabs_db.counterEnabled then
+		if MT.db.counterEnabled then
 			MudcrabTrackerIndicator:SetHidden(true)
-			crabs_db.counterEnabled = false
-			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_OFF)
+			MT.db.counterEnabled = false
+			MudcrabTracker.print(L.CHAT_MESSAGE_TRACKER_TOGGLE_OFF)
 		else
 			MudcrabTrackerIndicator:SetHidden(false)
-			crabs_db.counterEnabled = true
+			MT.db.counterEnabled = true
 			updateLabel()
-			print(L.CHAT_MESSAGE_TRACKER_TOGGLE_ON)
+			MudcrabTracker.print(L.CHAT_MESSAGE_TRACKER_TOGGLE_ON)
 		end
 	end
 
@@ -415,8 +445,11 @@ local function onAddOnLoaded(_, addonName)
 end
 
 function MudcrabTracker_OnCounterMoveStop()
-	crabs_db.counterPosition.left = MudcrabTrackerIndicator:GetLeft()
-	crabs_db.counterPosition.top = MudcrabTrackerIndicator:GetTop()
+	if MT.db == nil then
+		return
+	end
+	MT.db.counterPosition.left = MudcrabTrackerIndicator:GetLeft()
+	MT.db.counterPosition.top = MudcrabTrackerIndicator:GetTop()
 end
 
-EVENT_MANAGER:RegisterForEvent(CRABS_ADDON_NAME .. "_start", EVENT_ADD_ON_LOADED, onAddOnLoaded)
+EVENT_MANAGER:RegisterForEvent(MudcrabTracker.ADDON_NAME .. "_start", EVENT_ADD_ON_LOADED, onAddOnLoaded)

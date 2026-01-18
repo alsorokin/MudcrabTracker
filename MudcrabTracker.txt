@@ -4,5 +4,8 @@
 ## SavedVariables: MudcrabTracker_db
 ## Version: 0.0.18
 
+Init.lua
+LootLogger.lua
 MudcrabTracker.lua
 MudcrabTracker.xml
+
