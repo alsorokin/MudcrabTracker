@@ -6,7 +6,7 @@ local localizedStrings = {
 		TOTAL_ESTIMATED_VALUE = "Total Estimated Value: %d gold",
 		LOOTED_ITEM_ENTRY = "- %d x %s (%d gold)",
 		NO_LOOT_DATA = "No loot data available.",
-		LOOT_LOGGING_DISABLED = "Loot logging is currently disabled. Start logging with /crablootstart",
+		LOOT_LOGGING_DISABLED = "Loot logging is currently disabled. Start logging with /crabslootstart",
 		NO_ITEMS_LOOTED = "No items have been looted yet.",
 		LOOT_LOGGING_STARTED = "Mudcrab Loot Logging Started.",
 		LOOT_LOGGING_STOPPED = "Mudcrab Loot Logging Stopped.",
@@ -17,7 +17,7 @@ local localizedStrings = {
 		TOTAL_ESTIMATED_VALUE = "Geschätzter Gesamtwert: %d Gold",
 		LOOTED_ITEM_ENTRY = "- %d x %s (%d Gold)",
 		NO_LOOT_DATA = "Keine Beutedaten verfügbar.",
-		LOOT_LOGGING_DISABLED = "Die Beuteprotokollierung ist derzeit deaktiviert. Starten Sie die Protokollierung mit /crablootstart",
+		LOOT_LOGGING_DISABLED = "Die Beuteprotokollierung ist derzeit deaktiviert. Starten Sie die Protokollierung mit /crabslootstart",
 		NO_ITEMS_LOOTED = "Es wurden noch keine Gegenstände geraubt.",
 		LOOT_LOGGING_STARTED = "Mudcrab Beuteprotokollierung gestartet.",
 		LOOT_LOGGING_STOPPED = "Mudcrab Beuteprotokollierung gestoppt.",
@@ -28,7 +28,7 @@ local localizedStrings = {
 		TOTAL_ESTIMATED_VALUE = "Общая оценочная стоимость: %d золота",
 		LOOTED_ITEM_ENTRY = "- %d x %s (%d золота)",
 		NO_LOOT_DATA = "Нет данных о добыче.",
-		LOOT_LOGGING_DISABLED = "Журнал добычи в настоящее время отключен. Начните запись с помощью /crablootstart",
+		LOOT_LOGGING_DISABLED = "Журнал добычи в настоящее время отключен. Начните запись с помощью /crabslootstart",
 		NO_ITEMS_LOOTED = "Пока ничего не добыто.",
 		LOOT_LOGGING_STARTED = "Журнал добычи грязекрабов запущен.",
 		LOOT_LOGGING_STOPPED = "Журнал добычи грязекрабов остановлен.",
@@ -142,15 +142,15 @@ MT.LootLogger = {
 		if MT.db.lootLoggerEnabled then
 			MT.LootLogger.startLogging()
 		end
-		SLASH_COMMANDS["/crablootstart"] = function()
+		SLASH_COMMANDS["/crabslootstart"] = function()
 			MT.LootLogger.startLogging()
 			MT.print(L.LOOT_LOGGING_STARTED)
 		end
-		SLASH_COMMANDS["/crablootstop"] = function()
+		SLASH_COMMANDS["/crabslootstop"] = function()
 			MT.LootLogger.stopLogging()
 			MT.print(L.LOOT_LOGGING_STOPPED)
 		end
-		SLASH_COMMANDS["/crablootreport"] = function()
+		SLASH_COMMANDS["/crabslootreport"] = function()
 			MT.LootLogger.reportLoot()
 		end
 	end,
