@@ -156,6 +156,7 @@ local defaults = {
 		top = DEFAULT_CRABS_LABEL_TOP,
 	},
 	lootedItems = {},
+	lootLoggerEnabled = false,
 }
 
 -- Functions
@@ -404,7 +405,7 @@ local function onAddOnLoaded(_, addonName)
 		ACTION_RESULT_DIED
 	)
 
-	MudcrabTracker.LootLogger.startLogging()
+	MudcrabTracker.LootLogger.init()
 
 	SCENE_MANAGER:GetScene("hud"):RegisterCallback("StateChange", toggleIndicatorOnSceneChange)
 	SCENE_MANAGER:GetScene("hudui"):RegisterCallback("StateChange", toggleIndicatorOnSceneChange)

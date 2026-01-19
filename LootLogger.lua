@@ -1,4 +1,49 @@
 local MT = MudcrabTracker
+local clientLang = GetCVar("language.2")
+local localizedStrings = {
+	["en"] = {
+		LOOTED_ITEMS_SUMMARY = "Looted Items Summary:",
+		TOTAL_ESTIMATED_VALUE = "Total Estimated Value: %d gold",
+		LOOTED_ITEM_ENTRY = "- %d x %s (%d gold)",
+		NO_LOOT_DATA = "No loot data available.",
+		LOOT_LOGGING_DISABLED = "Loot logging is currently disabled. Start logging with /crablootstart",
+		NO_ITEMS_LOOTED = "No items have been looted yet.",
+		LOOT_LOGGING_STARTED = "Mudcrab Loot Logging Started.",
+		LOOT_LOGGING_STOPPED = "Mudcrab Loot Logging Stopped.",
+		LOOTED_ITEM = "Looted %d x %s (Total: %d)",
+	},
+	["de"] = {
+		LOOTED_ITEMS_SUMMARY = "Zusammenfassung der geraubten Gegenstände:",
+		TOTAL_ESTIMATED_VALUE = "Geschätzter Gesamtwert: %d Gold",
+		LOOTED_ITEM_ENTRY = "- %d x %s (%d Gold)",
+		NO_LOOT_DATA = "Keine Beutedaten verfügbar.",
+		LOOT_LOGGING_DISABLED = "Die Beuteprotokollierung ist derzeit deaktiviert. Starten Sie die Protokollierung mit /crablootstart",
+		NO_ITEMS_LOOTED = "Es wurden noch keine Gegenstände geraubt.",
+		LOOT_LOGGING_STARTED = "Mudcrab Beuteprotokollierung gestartet.",
+		LOOT_LOGGING_STOPPED = "Mudcrab Beuteprotokollierung gestoppt.",
+		LOOTED_ITEM = "Geraubt %d x %s (Insgesamt: %d)",
+	},
+	["ru"] = {
+		LOOTED_ITEMS_SUMMARY = "Сводка по добытым предметам:",
+		TOTAL_ESTIMATED_VALUE = "Общая оценочная стоимость: %d золота",
+		LOOTED_ITEM_ENTRY = "- %d x %s (%d золота)",
+		NO_LOOT_DATA = "Нет данных о добыче.",
+		LOOT_LOGGING_DISABLED = "Журнал добычи в настоящее время отключен. Начните запись с помощью /crablootstart",
+		NO_ITEMS_LOOTED = "Пока ничего не добыто.",
+		LOOT_LOGGING_STARTED = "Журнал добычи грязекрабов запущен.",
+		LOOT_LOGGING_STOPPED = "Журнал добычи грязекрабов остановлен.",
+		LOOTED_ITEM = "Добыто %d x %s (Всего: %d)",
+	},
+}
+local L = localizedStrings[clientLang] or localizedStrings["en"]
+
+local function GetItemLink(itemId, linkStyle)
+	return string.format(
+		"|H%d:item:%d:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h",
+		linkStyle or LINK_STYLE_DEFAULT,
+		itemId
+	)
+end
 
 MT.LootLogger = {
 	trackedItemIds = {
@@ -6,6 +51,7 @@ MT.LootLogger = {
 		77591, -- Mudcrab Chitin
 		114894, -- Decorative Wax
 	},
+
 	onLootReceived = function(
 		_, --eventId,
 		_, --receivedBy,
@@ -42,28 +88,70 @@ MT.LootLogger = {
 			MT.db.lootedItems[itemId] = 0
 		end
 		MT.db.lootedItems[itemId] = MT.db.lootedItems[itemId] + quantity
-		MT.print("Looted " .. quantity .. " x " .. itemName .. " (Total: " .. MT.db.lootedItems[itemId] .. ")")
+		MT.print(string.format(L.LOOTED_ITEM, quantity, itemName, MT.db.lootedItems[itemId]))
 	end,
+
 	startLogging = function()
 		EVENT_MANAGER:RegisterForEvent("MudcrabTracker_LootLogger", EVENT_LOOT_RECEIVED, MT.LootLogger.onLootReceived)
+		MT.db.lootLoggerEnabled = true
 	end,
+
 	stopLogging = function()
 		EVENT_MANAGER:UnregisterForEvent("MudcrabTracker_LootLogger", EVENT_LOOT_RECEIVED)
+		MT.LootLogger.reportLoot()
+		MT.db.lootedItems = {}
+		MT.db.lootLoggerEnabled = false
 	end,
+
+	reportLoot = function()
+		if MT.db == nil or MT.db.lootedItems == nil then
+			MT.print(L.NO_LOOT_DATA)
+			return
+		end
+		if MT.db.lootLoggerEnabled == false then
+			MT.print(L.LOOT_LOGGING_DISABLED)
+			return
+		end
+		if next(MT.db.lootedItems) == nil then
+			MT.print(L.NO_ITEMS_LOOTED)
+			return
+		end
+		local isLibPriceAvailable = LibPrice ~= nil
+		MT.print(L.LOOTED_ITEMS_SUMMARY)
+		local totalValue = 0
+		for itemId, quantity in pairs(MT.db.lootedItems) do
+			local itemLink = GetItemLink(itemId)
+			if isLibPriceAvailable then
+				local itemPrice = LibPrice.ItemLinkToPriceGold(itemLink) or 0
+				local itemValue = itemPrice * quantity
+				totalValue = totalValue + itemValue
+				MT.print(string.format(L.LOOTED_ITEM_ENTRY, quantity, itemLink, itemValue))
+			else
+				MT.print("- " .. quantity .. " x " .. itemLink)
+			end
+		end
+		if isLibPriceAvailable then
+			MT.print(string.format(L.TOTAL_ESTIMATED_VALUE, totalValue))
+		end
+	end,
+
 	init = function()
 		if MT.db == nil then
 			return
 		end
-		if MT.db.enableLootLogging then
+		if MT.db.lootLoggerEnabled then
 			MT.LootLogger.startLogging()
 		end
 		SLASH_COMMANDS["/crablootstart"] = function()
 			MT.LootLogger.startLogging()
-			MT.print("Mudcrab Loot Logging Started.")
+			MT.print(L.LOOT_LOGGING_STARTED)
 		end
 		SLASH_COMMANDS["/crablootstop"] = function()
 			MT.LootLogger.stopLogging()
-			MT.print("Mudcrab Loot Logging Stopped.")
+			MT.print(L.LOOT_LOGGING_STOPPED)
+		end
+		SLASH_COMMANDS["/crablootreport"] = function()
+			MT.LootLogger.reportLoot()
 		end
 	end,
 }
