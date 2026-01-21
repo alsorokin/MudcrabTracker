@@ -21,6 +21,8 @@ mkdir "$FOLDER"
 cp MudcrabTracker.lua "$FOLDER"/
 cp MudcrabTracker.txt "$FOLDER"/
 cp MudcrabTracker.xml "$FOLDER"/
+cp LootLogger.lua "$FOLDER"/
+cp Init.lua "$FOLDER"/
 
 zip -r "$ZIPNAME" "$FOLDER"
 
