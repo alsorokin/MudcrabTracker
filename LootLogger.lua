@@ -8,8 +8,9 @@ local localizedStrings = {
 		NO_LOOT_DATA = "No loot data available.",
 		LOOT_LOGGING_DISABLED = "Loot logging is currently disabled. Start logging with /crabslootstart",
 		NO_ITEMS_LOOTED = "No items have been looted yet.",
-		LOOT_LOGGING_STARTED = "Mudcrab Loot Logging Started.",
+		LOOT_LOGGING_STARTED = "Mudcrab Loot Logging Started. Happy hunting!",
 		LOOT_LOGGING_STOPPED = "Mudcrab Loot Logging Stopped.",
+		LOOT_LOGGING_PAUSED = "Mudcrab Loot Logging Paused.",
 		LOOTED_ITEM = "Looted %d x %s (Total: %d)",
 	},
 	["de"] = {
@@ -19,8 +20,9 @@ local localizedStrings = {
 		NO_LOOT_DATA = "Keine Beutedaten verfügbar.",
 		LOOT_LOGGING_DISABLED = "Die Beuteprotokollierung ist derzeit deaktiviert. Starten Sie die Protokollierung mit /crabslootstart",
 		NO_ITEMS_LOOTED = "Es wurden noch keine Gegenstände geraubt.",
-		LOOT_LOGGING_STARTED = "Mudcrab Beuteprotokollierung gestartet.",
+		LOOT_LOGGING_STARTED = "Mudcrab Beuteprotokollierung gestartet. Viel Erfolg bei der Jagd!",
 		LOOT_LOGGING_STOPPED = "Mudcrab Beuteprotokollierung gestoppt.",
+		LOOT_LOGGING_PAUSED = "Mudcrab Beuteprotokollierung pausiert.",
 		LOOTED_ITEM = "Geraubt %d x %s (Insgesamt: %d)",
 	},
 	["ru"] = {
@@ -30,8 +32,9 @@ local localizedStrings = {
 		NO_LOOT_DATA = "Нет данных о добыче.",
 		LOOT_LOGGING_DISABLED = "Журнал добычи в настоящее время отключен. Начните запись с помощью /crabslootstart",
 		NO_ITEMS_LOOTED = "Пока ничего не добыто.",
-		LOOT_LOGGING_STARTED = "Журнал добычи грязекрабов запущен.",
+		LOOT_LOGGING_STARTED = "Журнал добычи грязекрабов запущен. Удачной охоты!",
 		LOOT_LOGGING_STOPPED = "Журнал добычи грязекрабов остановлен.",
+		LOOT_LOGGING_PAUSED = "Журнал добычи грязекрабов приостановлен.",
 		LOOTED_ITEM = "Добыто %d x %s (Всего: %d)",
 	},
 }
@@ -103,6 +106,11 @@ MT.LootLogger = {
 		MT.db.lootLoggerEnabled = false
 	end,
 
+	pauseLogging = function()
+		EVENT_MANAGER:UnregisterForEvent("MudcrabTracker_LootLogger", EVENT_LOOT_RECEIVED)
+		MT.db.lootLoggerEnabled = false
+	end,
+
 	reportLoot = function()
 		if MT.db == nil or MT.db.lootedItems == nil then
 			MT.print(L.NO_LOOT_DATA)
@@ -149,6 +157,10 @@ MT.LootLogger = {
 		SLASH_COMMANDS["/crabslootstop"] = function()
 			MT.LootLogger.stopLogging()
 			MT.print(L.LOOT_LOGGING_STOPPED)
+		end
+		SLASH_COMMANDS["/crabslootpause"] = function()
+			MT.LootLogger.pauseLogging()
+			MT.print(L.LOOT_LOGGING_PAUSED)
 		end
 		SLASH_COMMANDS["/crabslootreport"] = function()
 			MT.LootLogger.reportLoot()
