@@ -63,8 +63,8 @@ local localizedStrings = {
 		CHAT_MESSAGE_NEXT_RANK = "Crab score needed for next rank: |cAAAAFF%s|r",
 	},
 	["de"] = {
-		MUDCRAB_TRACKER_LABEL = "Krabbenscore: |cAAAAFF%s|r",
-		MUDCRAB_TRACKER_RANK = "Rang: |cAAAAFF%s|r",
+		MUDCRAB_TRACKER_LABEL = "Krabbenscore: %s",
+		MUDCRAB_TRACKER_RANK = "Rang: %s",
 		CHAT_MESSAGE_MUDCRAB_KILLED = "Du hast |cAAAAFF%s|r getötet. Krabbenscore: |cAAAAFF%s|r",
 		CHAT_MESSAGE_BOSS_KILLED = "Endlich. Die Ufer sind frei von diesen Schrecken, die ihr ... |cAAAAFF%s|r nennt. Du hast |cAAAAFF%s|r Punkte erhalten! Krabbenscore: |cAAAAFF%s|r",
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Mudcrab Tracker ist jetzt sichtbar.",
@@ -76,8 +76,8 @@ local localizedStrings = {
 		CHAT_MESSAGE_NEXT_RANK = "Krabbenscore für den nächsten Rang benötigt: |cAAAAFF%s|r",
 	},
 	["ru"] = {
-		MUDCRAB_TRACKER_LABEL = "Очки крабов: |cAAAAFF%s|r",
-		MUDCRAB_TRACKER_RANK = "Звание: |cAAAAFF%s|r",
+		MUDCRAB_TRACKER_LABEL = "Очки крабов: %s",
+		MUDCRAB_TRACKER_RANK = "Звание: %s",
 		CHAT_MESSAGE_MUDCRAB_KILLED = "|cAAAAFF%s|r убит. Очки крабов: |cAAAAFF%s|r",
 		CHAT_MESSAGE_BOSS_KILLED = "Наконец этот берег свободен от напасти, имя которой... |cAAAAFF%s|r. Вы заработали |cAAAAFF%s|r очков! Очки крабов: |cAAAAFF%s|r",
 		CHAT_MESSAGE_TRACKER_TOGGLE_ON = "Трекер грязекрабов теперь виден.",
