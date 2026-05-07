@@ -1,6 +1,6 @@
 ## Title: MudcrabTracker
 ## Author: @Snay
-## APIVersion: 101048
+## APIVersion: 101049
 ## SavedVariables: MudcrabTracker_db
 ## Version: 0.1.4
 ## Description: Tracks mudcrab kills and logs loot obtained from them.
