@@ -104,10 +104,12 @@ local crabNames = {
 		["Coral Mudcrab"] = 1, -- Summerset boss minions
 		["Mud Crab"] = 1, -- Solstice temple
 		["Gravelclaw"] = 1, -- Craglorn
-		["Colossal Coral Crab"] = 5, -- Solstice
+		["Colossal Coral Crab"] = 5, -- Solstice elite
+		["Colossal Mudcrab"] = 5, -- Solstice elite
 		["Tidespite"] = 15, -- Solstice boss
 		["Shellcracker"] = 15, -- Stonefalls boss
 		["Blue Sandcrab"] = 1, -- Shallcracker minions
+		["Mother Jagged-Claw"] = 5, -- Vvardenfell ashlander daily elite
 	},
 	-- German
 	["de"] = {
@@ -122,9 +124,11 @@ local crabNames = {
 		-- ["Schlammkrabbe"] = 1,
 		["Schotterkralle"] = 1,
 		["Kolossale Korallenkrabbe"] = 5,
+		["Kolossale Schlammkrabbe"] = 5,
 		["Gezeitentücke"] = 15,
 		["Schalenknacker"] = 15,
 		["Blaue Sandkrabbe"] = 1,
+		["Mutter Zackige-Klaue"] = 5,
 	},
 	-- Russian
 	["ru"] = {
@@ -139,9 +143,11 @@ local crabNames = {
 		-- ["Грязевой краб"] = 1,
 		["Гравийный краб"] = 1,
 		["Огромный коралловый краб"] = 5,
+		["Огромный грязекраб"] = 5,
 		["Злоба Прилива"] = 15,
 		["Крушитель Панцирей"] = 15,
 		["Синий песчаный краб"] = 1,
+		["Зазубренная Клешня"] = 5,
 	},
 }
 local crabsOfClientLang = crabNames[clientLang]
